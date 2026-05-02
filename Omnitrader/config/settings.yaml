@@ -1,0 +1,275 @@
+# Omnitrader Configuration
+# All configuration variables for the system.
+
+# ============================================================
+# Exchange / Trading
+# ============================================================
+exchange:
+  name: "binance"
+  testnet: true
+  api_key_env: "EXCHANGE_API_KEY"
+  api_secret_env: "EXCHANGE_API_SECRET"
+  master_passphrase_env: "EXCHANGE_MASTER_PASSPHRACE"
+  base_url: "https://testnet.binance.vision"  # testnet
+  # Production: "https://api.binance.com"
+
+# ============================================================
+# Risk Management
+# ============================================================
+risk_management:
+  risk_per_trade: 0.02           # 2% of Striker pool per trade
+  reward_risk_ratio: 2.0         # Minimum 2:1 reward-to-risk
+  max_concurrent_trades: 3       # Maximum simultaneous open positions
+  min_fear_score_for_trigger: 70 # Minimum fear score to consider trading
+  max_position_size_usd: 50.00   # Maximum position size in USD
+  trailing_stop: true
+  trailing_stop_pct: 0.02
+
+# ============================================================
+# Capital Allocation (Hydra)
+# ============================================================
+capital:
+  moat_ratio: 0.10               # 10% of total capital -> safe reserve (USDC)
+  foundation_ratio: 0.20         # 20% of total capital -> long-term portfolio
+  striker_ratio: 0.70            # 70% of total capital -> active trading
+  profit_split:
+    striker_keep: 0.50           # 50% of profits stay in Striker pool
+    moat: 0.25                   # 25% of profits go to Moat
+    foundation: 0.25             # 25% of profits go to Foundation
+  watchdog_token:
+    enabled: true
+    reporter_share: 0.70         # 70% of bounty rewards to reporter
+    dao_treasury_share: 0.20     # 20% to DAO treasury
+    burn_share: 0.10             # 10% burned
+
+# ============================================================
+# Scheduler / Polling Intervals
+# ============================================================
+scheduler:
+  sleep_interval_sec: 900        # 15 minutes between Striker checks
+  news_poll_interval_sec: 900    # NewsAPI polling interval
+  onchain_scan_interval_sec: 3600  # On-chain scanning interval (1 hour)
+  politician_fetch_interval_hours: 24  # Daily at 9 AM UTC
+  dividend_rebalance_interval_days: 7  # Weekly
+  learning_loop_interval_hours: 24   # Daily learning loop
+  bounty_report_interval_hours: 12   # Check for new bounties every 12h
+  reconciliation_interval_hours: 24  # Daily reconciliation
+  dao_proposal_interval_hours: 168   # Weekly governance check
+
+# ============================================================
+# Telegram Bot
+# ============================================================
+telegram:
+  bot_token_env: "TELEGRAM_BOT_TOKEN"
+  chat_id_env: "TELEGRAM_CHAT_ID"
+  authorized_user_ids:
+    - "your_telegram_user_id"
+  commands:
+    - "/status"
+    - "/balance"
+    - "/pause"
+    - "/resume"
+    - "/trades"
+    - "/bounties"
+    - "/help"
+
+# ============================================================
+# LLM Interface (OpenRouter / Hermes Agent)
+# ============================================================
+llm:
+  model: "qwen/qwen3-35b-a3b"
+  api_key_env: "LLM_API_KEY"
+  base_url: "https://openrouter.ai/api/v1"
+  max_tokens: 4096
+  temperature: 0.3
+  system_prompt: |
+    You are the strategic brain of Omnitrader. Analyze data, review performance,
+    and generate specific, actionable instruction updates for strategy skill files.
+    Output only the skill file content — no explanations, no markdown, just the raw text.
+
+# ============================================================
+# Data Broker Scanner
+# ============================================================
+databroker_scanner:
+  enabled: true
+  opt_out_services:
+    - "incogni"
+    - "deleteme"
+    - "lexisnexis_intruder"
+  data_broker_list:
+    - "Acxiom"
+    - "Equifax"
+    - "Experian"
+    - "TransUnion"
+    - "Whitepages"
+    - "Spokeo"
+    - "PeopleSearch"
+    - "InfoSpace"
+    - "MyLife"
+    - "BeenVerified"
+  detection_rules:
+    - "sale_of_geolocation_without_consent"
+    - "sale_of_health_data"
+    - "sale_of_financial_data"
+    - "opt_out_not_honored"
+    - "ccpa_violation"
+    - "gdpr_violation"
+    - "data_broker_noncompliance"
+  test_account_email: "omnitrader-test@protonmail.com"
+
+# ============================================================
+# Dividend Portfolio Assets
+# ============================================================
+dividend_assets:
+  - ticker: "ARCC"
+    name: "Ares Capital Corporation"
+    target_weight: 0.25
+    sector: "bdc"
+  - ticker: "SDIV"
+    name: "Global X SuperDividend ETF"
+    target_weight: 0.25
+    sector: "etf"
+  - ticker: "O"
+    name: "Realty Income Corporation"
+    target_weight: 0.20
+    sector: "reit"
+  - ticker: "ENB"
+    name: "Enbridge Inc."
+    target_weight: 0.15
+    sector: "energy"
+  - ticker: "ABBV"
+    name: "AbbVie Inc."
+    target_weight: 0.15
+    sector: "pharma"
+
+# ============================================================
+# Congress / Politician Tracking
+# ============================================================
+congress:
+  api_url: "https://api.apify.com/v2/acts/actor/scrape-congress-trades"
+  api_key_env: "QUIVER_API_KEY"
+  fallback_url: "https://quiverquant.com/api/trades"
+  high_profile_members:
+    - "Nancy Pelosi"
+    - "Josh Crenshaw"
+    - "Tom Emmer"
+    - "Marsha Blackburn"
+    - "Toi Carpenter"
+    - "Ralph Norman"
+  min_transaction_value: 1000  # Minimum $1000 to track
+  forward_return_window_days: 90
+
+# ============================================================
+# Bounty Submission Targets
+# ============================================================
+bounty_submissions:
+  enabled: true
+  crypto_programs:
+    binance_security:
+      email: "security@binance.com"
+      name: "Binance Security"
+      url: "https://www.binance.com/en/security/bug-bounty"
+    web3bounty:
+      email: "reports@web3bounty.io"
+      name: "Web3Bounty"
+      url: "https://www.web3bounty.io"
+    arbitrum_dao:
+      email: "treasury@arbitrum.foundation"
+      name: "Arbitrum DAO Treasury"
+      url: "https://arbitrum.foundation"
+  government_programs:
+    ftc:
+      email: "reportfraud@ftc.gov"
+      name: "Federal Trade Commission"
+      url: "https://reportfraud.ftc.gov"
+      form_url: "https://reportfraud.ftc.gov"
+    doj:
+      email: "cib@usdoj.gov"
+      name: "DOJ Criminal Investment Branch"
+      url: "https://www.justice.gov/criminal-fraud"
+    sec:
+      email: "tips.croits.complaints@sec.gov"
+      name: "SEC Office of Whistleblower"
+      url: "https://www.sec.gov/whistleblower"
+      form_url: "https://www.sec.gov/submit-tip"
+    cftc:
+      email: "compliance@cftc.gov"
+      name: "CFTC Enforcement Division"
+      url: "https://www.cftc.gov/TipComplaintInput"
+    irs:
+      email: "irs_whistleblower@irs.gov"
+      name: "IRS Whistleblower Office"
+      url: "https://www.irs.gov/individuals/international-taxpayers/whistleblower-program-office"
+  state_ags:
+    - "California AG"
+    - "New York AG"
+    - "Texas AG"
+    - "Florida AG"
+    - "Illinois AG"
+
+# ============================================================
+# Email / SMTP
+# ============================================================
+email:
+  smtp_host: "smtp.gmail.com"
+  smtp_port: 587
+  use_tls: true
+  sender_name: "Omnitrader Sleuth"
+  max_attachment_size_mb: 25
+
+# ============================================================
+# Network / DePIN VPN
+# ============================================================
+vpn:
+  enabled: true
+  wireguard_port: 51820
+  private_key_env: "WIREGUARD_PRIVATE_KEY"
+  listen_interface: "eth0"
+  allowed_ips: "0.0.0.0/0"
+  peers:
+    - "peer1.depin.example.com:51820"
+    - "peer2.depin.example.com:51820"
+  rotate_interval_hours: 4
+  bandwidth_limit_mbps: 100
+
+# ============================================================
+# Database
+# ============================================================
+database:
+  default: "sqlite:///data/omnitrader.db"
+  max_connections: 10
+  echo: false  # Set true for SQL query logging
+
+# ============================================================
+# Legal Filing
+# ============================================================
+legal:
+  enabled: true
+  human_approval_required: true
+  filing_modes:
+    draft_only: true      # Always draft, never auto-file
+    auto_file: false      # NEVER auto-file legal documents
+  small_claims_max_usd: 10000
+  ccpa_demand_letter:
+    statutory_damage_min: 100
+    statutory_damage_max: 75000
+    treble_damages: true  # Triple damages for intentional violations
+  pacer:
+    username_env: "PACER_USERNAME"
+    password_env: "PACER_PASSWORD"
+
+# ============================================================
+# DAO / Treasury
+# ============================================================
+dao:
+  chain_id: 42161  # Arbitrum One
+  rpc_url_env: "WEB3_RPC_URL"
+  wallet_address_env: "DAO_WALLET_ADDRESS"
+  private_key_env: "DAO_WALLET_PRIVATE_KEY"
+  contract_address_env: "DAO_CONTRACT_ADDRESS"
+  governance_token: "WATCHDOG"
+  proposals:
+    min_voting_delay_hours: 24
+    voting_period_hours: 168  # 1 week
+    quorum_percent: 5
+    proposal_fee_token: 1000  # Fee to submit a proposal

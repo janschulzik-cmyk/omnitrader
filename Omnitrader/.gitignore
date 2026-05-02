@@ -1,0 +1,73 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# Environment
+.env
+.env.local
+.env.production
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Data
+data/
+*.db
+*.sqlite
+
+# Reports
+reports/
+*.html
+*.pdf
+*.csv
+
+# Logs
+logs/
+*.log
+
+# Node
+node_modules/
+
+# Docker
+docker-compose.override.yml
+
+# Test coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# MyPy
+.mypy_cache/
+
+# Compiled web3 artifacts
+artifacts/
+cache/
+
+# WireGuard
+wg0.conf
+
+# Playwright
+.playwright/
+
+# Compiled binaries
+*.pyd

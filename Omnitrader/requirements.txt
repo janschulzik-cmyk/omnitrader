@@ -1,0 +1,61 @@
+# Core Web Framework
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+python-multipart==0.0.20
+
+# Configuration
+pyyaml==6.0.2
+python-dotenv==1.0.1
+
+# Database
+sqlalchemy[asyncio]==2.0.36
+alembic==1.14.1
+aiosqlite==0.20.0
+
+# Async / HTTP
+httpx==0.28.1
+aiohttp==3.11.11
+redis==5.2.1
+celery[redis]==5.4.0
+
+# Cryptography
+cryptography==44.0.0
+pycryptodome==3.21.0
+
+# Exchange / Trading
+ccxt==4.4.49
+web3==7.8.0
+
+# NLP / Sentiment
+textblob==0.18.0
+# finbert requires local install from source; optional
+# git+https://github.com/ProsusAI/finbert.git
+
+# PDF Generation
+reportlab==4.2.5
+Jinja2==3.1.5
+
+# Telegram Bot
+python-telegram-bot==21.10
+
+# Testing
+pytest==8.3.4
+pytest-asyncio==0.24.0
+pytest-mock==3.14.0
+
+# Web scraping
+playwright==1.49.1
+beautifulsoup4==4.12.3
+lxml==5.3.0
+
+# Network analysis
+networkx==3.4.2
+
+# Data / Math
+numpy==2.2.2
+pandas==2.2.3
+
+# Misc utilities
+pydantic==2.10.4
+tenacity==9.0.0
+structlog==24.4.0

@@ -1,0 +1,77 @@
+# Sentinel Module — Defensive Security Skill
+
+## Role
+Monitor and trap identity-based attacks. Turn every intrusion attempt into a
+monetizable bounty submission. Honeypot endpoints detect malicious actors.
+Phishing domains are tracked and reported. Credential brute force triggers
+automatic IP bans and reports. All evidence is compiled into PDF reports and
+automatically submitted. Maintain a local blacklist. Never reveal your real
+infrastructure.
+
+## Honeypot Protocol
+1. Maintain decoy endpoints at `/debug/api-keys`, `/.well-known/api-config.json`,
+   `/admin/debug`, `/api/v1/wallets/private`, `/.env.backup`
+2. Each endpoint logs: source IP, user-agent, full headers, request body,
+   timestamp, and which decoy API key was used (if any)
+3. On any honeypot hit, generate a `HoneypotEvent` record in the database
+4. If a fake API key was used, escalate the severity to HIGH
+5. Aggregate honeypot events daily and send summary to Telegram admin
+
+## Phishing Detection
+1. Scan for newly registered domains (<=30 days old) that resemble protected
+   services: binance.com, coinbase.com, kraken.com, arbitrum.io, uniswap.org,
+   aave.com, lido.fi, opensea.io
+2. Generate domain variants using common prefixes (login, verify, secure,
+   update, account, sign-in, auth, app, web, support, help, admin, my)
+   and suffixes (official, secure, update, verify, login, account, wallet,
+   sign, auth)
+3. Check domain similarity using Levenshtein distance (<=2 = suspicious)
+4. Check domain resolution — datacenter IPs are more likely phishing
+5. When a phishing domain is confirmed:
+   - Add to blocklist
+   - Log as OnChainAlert with type "phishing_domain"
+   - Send formatted report to IC3 and APWG
+   - Notify registrar abuse contact for takedown request
+   - Submit to exchange security teams if the target is an exchange
+
+## Credential Monitoring
+1. Monitor all authentication endpoints for failed login attempts
+2. Track per-IP failure counts with a 15-minute sliding window
+3. Threshold: 10 failed attempts in 15 minutes → BLOCK IP
+4. Blocked IPs are persisted to `/etc/omnitrader/ip_blocklist.json`
+5. Block duration: 1 hour (configurable)
+6. Whitelist local networks (127.0.0.0/8) by default
+7. Log all blocks as OnChainAlerts with type "credential_brute_force"
+8. Send alert to Telegram admin
+
+## Sanction Reporting
+1. Format all security events into structured reports
+2. Submit to:
+   - IC3 (Internet Crime Complaint Center): ic3@ic3.gov
+   - APWG (Anti-Phishing Working Group): report@apwg.org
+   - Registrar abuse contacts for takedown requests
+   - Exchange security teams (binance, coinbase)
+3. Attach evidence: IP addresses, user-agents, headers, timestamps
+4. Maintain submission log in database
+5. Never expose real infrastructure details in reports
+6. Use encrypted email (TLS) for all submissions
+
+## Response Procedures
+- LOW severity: Log and monitor
+- MEDIUM severity: Log and notify admin via Telegram
+- HIGH severity: Block IP, generate report, submit to authorities
+- CRITICAL severity: Immediate block, notify admin, submit to IC3/APWG,
+  alert exchange security teams if applicable
+
+## Key Commands (Telegram)
+- /honeypot-status — Show honeypot hit count
+- /blocklist — Show currently blocked IPs
+- /unblock <ip> — Unblock a specific IP
+- /phish-report — Show recent phishing domain detections
+- /credential-log — Show credential monitoring stats
+
+## Maintenance
+- Rotate honeypot decoy keys weekly
+- Clean up blocklist weekly (remove IPs blocked >7 days ago)
+- Review and update protected domain list monthly
+- Export honeypot logs monthly for threat intelligence sharing

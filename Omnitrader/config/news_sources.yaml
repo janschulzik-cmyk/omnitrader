@@ -1,0 +1,17 @@
+# News sources for morning spike detection
+sources:
+  forexlive:
+    url: "https://www.forexlive.com/feed"
+    type: rss
+    severity_selector: "impact"
+  marketwatch:
+    url: "https://www.marketwatch.com/latest-news"
+    type: scrape
+    severity_selector: ".impact-indicator"
+  investing_com:
+    url: "https://www.investing.com/economic-calendar/"
+    type: scrape
+    severity_selector: ".impact"
+scan_window_minutes: 60
+market_open_et: "09:30"
+spike_threshold: 3  # number of red events in window to trigger

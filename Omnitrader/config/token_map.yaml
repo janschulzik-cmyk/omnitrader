@@ -1,0 +1,112 @@
+# Token Mapping: US Stock Tickers -> Tokenized / Synthetic Equivalents
+# Used by the Foundation module to map congressional stock buys to tradeable crypto tokens.
+# In production, these would be tokenized stocks on Synthetix, Backed Finance, or similar.
+
+mapping:
+  # Defense
+  RTX:
+    name: "RTX Corporation"
+    token: "sRTX"
+    protocol: "synthetix"
+    network: "ethereum"
+    contract: "0x..."
+  LMT:
+    name: "Lockheed Martin Corp"
+    token: "sLMT"
+    protocol: "synthetix"
+    network: "ethereum"
+    contract: "0x..."
+  NOC:
+    name: "Northrop Grumman"
+    token: "sNOC"
+    protocol: "synthetix"
+    network: "ethereum"
+    contract: "0x..."
+
+  # Technology
+  AAPL:
+    name: "Apple Inc."
+    token: "sAAPL"
+    protocol: "synthetix"
+    network: "ethereum"
+    contract: "0x..."
+  MSFT:
+    name: "Microsoft Corp"
+    token: "sMSFT"
+    protocol: "synthetix"
+    network: "ethereum"
+    contract: "0x..."
+  GOOGL:
+    name: "Alphabet Inc."
+    token: "sGOOGL"
+    protocol: "synthetix"
+    network: "ethereum"
+    contract: "0x..."
+  NVDA:
+    name: "NVIDIA Corp"
+    token: "sNVDA"
+    protocol: "synthetix"
+    network: "ethereum"
+    contract: "0x..."
+
+  # Energy
+  ENB:
+    name: "Enbridge Inc."
+    token: "sENB"
+    protocol: "backed_finance"
+    network: "ethereum"
+    contract: "0x..."
+  XOM:
+    name: "Exxon Mobil Corp"
+    token: "sXOM"
+    protocol: "synthetix"
+    network: "ethereum"
+    contract: "0x..."
+
+  # Healthcare
+  ABBV:
+    name: "AbbVie Inc."
+    token: "sABBV"
+    protocol: "synthetix"
+    network: "ethereum"
+    contract: "0x..."
+  JNJ:
+    name: "Johnson & Johnson"
+    token: "sJNJ"
+    protocol: "synthetix"
+    network: "ethereum"
+    contract: "0x..."
+
+  # Financials
+  ARCC:
+    name: "Ares Capital Corporation"
+    token: "sARCC"
+    protocol: "synthetix"
+    network: "ethereum"
+    contract: "0x..."
+  JPM:
+    name: "JPMorgan Chase"
+    token: "sJPM"
+    protocol: "synthetix"
+    network: "ethereum"
+    contract: "0x..."
+
+  # ETFs
+  SDIV:
+    name: "Global X SuperDividend ETF"
+    token: "sSDIV"
+    protocol: "backed_finance"
+    network: "ethereum"
+    contract: "0x..."
+
+# Fallback: if no exact mapping exists, use crypto correlation
+# High-profile tech stocks -> ETH (correlated)
+# High-profile defense stocks -> BTC (institutional proxy)
+# High-profile energy stocks -> Energy sector tokens (if available)
+fallback:
+  tech_correlation: "ETH"
+  defense_correlation: "BTC"
+  energy_correlation: "XLE"  # ETF token if available
+  financial_correlation: "UNI"  # DeFi proxy
+  healthcare_correlation: "LINK"  # Oracle proxy
+  consumer_correlation: "MATIC"  # Layer 2 proxy

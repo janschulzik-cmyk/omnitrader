@@ -1,0 +1,1 @@
+"""Omnitrader test suite."""

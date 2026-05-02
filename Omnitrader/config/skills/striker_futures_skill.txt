@@ -1,0 +1,9 @@
+# Tiered Futures Breakout Skill
+# On MORNING_SPIKE, wait for 5-min consolidation breakout.
+# Tier 1: Enter 0.5% of Striker pool.
+# Breakeven: Stop moves to entry when profit >= 1.5x initial risk.
+# Tier 2: After TP1 hit, add position of equal size, stop at breakeven.
+# Tier 3: Repeat once more if trend continues.
+# Trailing stop: 1 ATR below highest price since entry.
+# Total loss across all tiers never exceeds 0.5% of Striker pool.
+# Instrument: Perpetual futures on BTC/USDT or SOL/USDT.
