@@ -57,6 +57,16 @@ scheduler:
   dao_proposal_interval_hours: 168   # Weekly governance check
 
 # ============================================================
+# Analyst Bureau (TradingAgents multi-agent analysis)
+# ============================================================
+analyst_bureau:
+  enabled: false  # overridden by env var
+  min_confidence: 0.6
+  default_config:
+    model: "qwen/qwen3-35b-a3b"
+    base_url: "https://openrouter.ai/api/v1"
+
+# ============================================================
 # Telegram Bot
 # ============================================================
 telegram:

@@ -1,0 +1,26 @@
+# Analyst Bureau Skill Instructions
+
+## Activation
+- Enabled via ANALYST_BUREAU_ENABLED env var (true/false).
+- When enabled, every Striker signal is enriched with multi-agent analysis from TradingAgents.
+
+## Agent Roles
+- Fundamentals Analyst: Evaluates macro and company-specific financial data.
+- Sentiment Analyst: Gauges market mood from social media, news, on-chain data.
+- News Analyst: Processes real-time headlines with impact classification.
+- Technical Analyst: Analyzes price action, indicators, and volume patterns.
+- Bull Researcher: Builds the bullish case.
+- Bear Researcher: Builds the bearish case.
+- Risk Analyst: Assesses drawdown probability, correlation, and portfolio impact.
+- Trader: Synthesizes all inputs into a concrete trading signal.
+- Portfolio Manager: Approves, modifies, or rejects the trade.
+
+## Integration Rules
+- Minimum confidence threshold for approval: 0.6 (configurable).
+- Bureau output adjusts position size via confidence_modifier and risk_adjustment.
+- If Bureau rejects trade, it is cancelled.
+- If Bureau is unavailable (API error, timeout), the trade proceeds unchanged (fail-open).
+- All Bureau decisions are logged for learning loop analysis.
+
+## Learning
+- Weekly, the learning loop reviews Bureau-approved vs rejected trades to tune confidence thresholds.

@@ -1,0 +1,3 @@
+[submodule "Omnitrader/TradingAgents"]
+	path = Omnitrader/TradingAgents
+	url = https://github.com/janschulzik-cmyk/TradingAgents.git

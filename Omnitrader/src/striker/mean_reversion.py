@@ -283,6 +283,17 @@ class MeanReversionSignalGenerator:
             "timestamp": datetime.utcnow().isoformat(),
         }
 
+        # Analyst Bureau enrichment (fail-open: passes through on error)
+        if os.environ.get("ANALYST_BUREAU_ENABLED", "false").lower() == "true":
+            try:
+                from ..analyst_bureau.signal_enrichment import enrich_signal
+                from ..analyst_bureau.bureau_orchestrator import BureauOrchestrator
+                bureau = BureauOrchestrator()
+                signal = enrich_signal(signal, bureau)
+                logger.info("Signal enriched by Analyst Bureau")
+            except Exception as e:
+                logger.warning("Analyst Bureau enrichment failed: %s", e)
+
         self.last_signal = signal
         self.last_signal_time = datetime.utcnow()
         logger.info("SHORT signal: pair=%s price=%.4f confidence=%.1f",
@@ -342,6 +353,17 @@ class MeanReversionSignalGenerator:
             ) if self.compute_volume_average(ohlcv) > 0 else 0,
             "timestamp": datetime.utcnow().isoformat(),
         }
+
+        # Analyst Bureau enrichment (fail-open: passes through on error)
+        if os.environ.get("ANALYST_BUREAU_ENABLED", "false").lower() == "true":
+            try:
+                from ..analyst_bureau.signal_enrichment import enrich_signal
+                from ..analyst_bureau.bureau_orchestrator import BureauOrchestrator
+                bureau = BureauOrchestrator()
+                signal = enrich_signal(signal, bureau)
+                logger.info("Signal enriched by Analyst Bureau")
+            except Exception as e:
+                logger.warning("Analyst Bureau enrichment failed: %s", e)
 
         self.last_signal = signal
         self.last_signal_time = datetime.utcnow()

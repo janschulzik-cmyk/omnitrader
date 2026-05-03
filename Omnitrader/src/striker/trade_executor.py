@@ -253,6 +253,15 @@ class TradeExecutor:
                 pool_balance=pool_balance,
             )
 
+            # Analyst Bureau metadata logging
+            if signal.get("analyst_bureau_used"):
+                report_summary = signal.get("debate_summary", "No summary")
+                logger.info("Trade executed with Analyst Bureau insight: %s", report_summary)
+                logger.info("Analyst consensus: %s, confidence_modifier: %.2f, risk_adjustment: %.2f",
+                            signal.get("analyst_consensus", "unknown"),
+                            signal.get("confidence_modifier", 1.0),
+                            signal.get("risk_adjustment", 1.0))
+
             return {
                 "order_id": order.get("id"),
                 "pair": pair,
