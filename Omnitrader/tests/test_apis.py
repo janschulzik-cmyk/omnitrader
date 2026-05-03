@@ -2,6 +2,7 @@
 
 import pytest
 from unittest.mock import MagicMock, patch, AsyncMock
+import asyncio
 
 
 class TestAPIRoutes:
@@ -85,81 +86,83 @@ class TestTelegramBot:
             with patch("src.apis.telegram_bot.verify_telegram_user", return_value=False):
                 assert bot._check_admin(mock_update) is False
 
-    @pytest.mark.asyncio
-    async def test_cmd_status(self, bot):
+    def test_cmd_status(self, bot):
         """Status command sends pool balances."""
-        mock_update = MagicMock()
-        mock_chat = MagicMock()
-        mock_chat.id = "123456"
-        mock_update.effective_chat = mock_chat
-        mock_context = MagicMock()
+        import asyncio
+        async def _inner():
+            mock_update = MagicMock()
+            mock_chat = MagicMock()
+            mock_chat.id = "123456"
+            mock_update.effective_chat = mock_chat
+            mock_context = MagicMock()
 
-        with patch.object(bot, "_check_admin", return_value=True):
-            with patch("src.hydra.Hydra") as MockHydra:
-                MockHydra.load.return_value.get_all_balances.return_value = {
-                    "moat": 100.0, "striker": 70.0, "foundation": 20.0
-                }
-                with patch("src.sleuth.bounty_reporter.BountyReporter") as MockReporter:
-                    MockReporter.load.return_value.get_submission_history.return_value = []
-                    with patch("src.sleuth.databroker_scanner.DataBrokerScanner") as MockScanner:
-                        MockScanner.load.return_value.get_scan_summary.return_value = {}
-                        mock_bot = MagicMock()
-                        mock_app = MagicMock()
-                        mock_app.bot = mock_bot
-                        bot.app = mock_app
-                        await bot.cmd_status(mock_update, mock_context)
-                        mock_bot.send_message.assert_called_once()
-
-    @pytest.mark.asyncio
-    async def test_cmd_pause(self, bot):
+            with patch.object(bot, "_check_admin", return_value=True):
+                with patch("src.hydra.Hydra") as MockHydra:
+                    MockHydra.load.return_value.get_all_balances.return_value = {
+                        "moat": 100.0, "striker": 70.0, "foundation": 20.0
+                    }
+                    with patch("src.sleuth.bounty_reporter.BountyReporter") as MockReporter:
+                        MockReporter.load.return_value.get_submission_history.return_value = []
+                        with patch("src.sleuth.databroker_scanner.DataBrokerScanner") as MockScanner:
+                            MockScanner.load.return_value.get_scan_summary.return_value = {}
+                            mock_bot = MagicMock()
+                            mock_app = MagicMock()
+                            mock_app.bot = mock_bot
+                            bot.app = mock_app
+                            await bot.cmd_status(mock_update, mock_context)
+                            mock_bot.send_message.assert_called_once()
+        asyncio.run(_inner())
+    def test_cmd_pause(self, bot):
         """Pause command is handled."""
-        mock_update = MagicMock()
-        mock_chat = MagicMock()
-        mock_chat.id = "123456"
-        mock_update.effective_chat = mock_chat
-        mock_context = MagicMock()
+        import asyncio
+        async def _inner():
+            mock_update = MagicMock()
+            mock_chat = MagicMock()
+            mock_chat.id = "123456"
+            mock_update.effective_chat = mock_chat
+            mock_context = MagicMock()
 
-        with patch.object(bot, "_check_admin", return_value=True):
-            mock_session = MagicMock()
-            mock_setting = MagicMock()
-            mock_setting.value = "false"
-            mock_session.query.return_value.filter_by.return_value.first.return_value = None
+            with patch.object(bot, "_check_admin", return_value=True):
+                mock_session = MagicMock()
+                mock_setting = MagicMock()
+                mock_setting.value = "false"
+                mock_session.query.return_value.filter_by.return_value.first.return_value = None
 
-            with patch("src.utils.db.get_session", return_value=mock_session):
-                mock_bot = MagicMock()
-                mock_app = MagicMock()
-                mock_app.bot = mock_bot
-                bot.app = mock_app
-                await bot.cmd_pause(mock_update, mock_context)
-                mock_bot.send_message.assert_called_once()
-                # Verify DB was updated
-                mock_session.add.assert_called()
-
-    @pytest.mark.asyncio
-    async def test_cmd_resume(self, bot):
+                with patch("src.utils.db.get_session", return_value=mock_session):
+                    mock_bot = MagicMock()
+                    mock_app = MagicMock()
+                    mock_app.bot = mock_bot
+                    bot.app = mock_app
+                    await bot.cmd_pause(mock_update, mock_context)
+                    mock_bot.send_message.assert_called_once()
+                    # Verify DB was updated
+                    mock_session.add.assert_called()
+        asyncio.run(_inner())
+    def test_cmd_resume(self, bot):
         """Resume command is handled."""
-        mock_update = MagicMock()
-        mock_chat = MagicMock()
-        mock_chat.id = "123456"
-        mock_update.effective_chat = mock_chat
-        mock_context = MagicMock()
+        import asyncio
+        async def _inner():
+            mock_update = MagicMock()
+            mock_chat = MagicMock()
+            mock_chat.id = "123456"
+            mock_update.effective_chat = mock_chat
+            mock_context = MagicMock()
 
-        with patch.object(bot, "_check_admin", return_value=True):
-            mock_session = MagicMock()
-            mock_setting = MagicMock()
-            mock_setting.value = "true"
-            mock_session.query.return_value.filter_by.return_value.first.return_value = mock_setting
+            with patch.object(bot, "_check_admin", return_value=True):
+                mock_session = MagicMock()
+                mock_setting = MagicMock()
+                mock_setting.value = "true"
+                mock_session.query.return_value.filter_by.return_value.first.return_value = mock_setting
 
-            with patch("src.utils.db.get_session", return_value=mock_session):
-                mock_bot = MagicMock()
-                mock_app = MagicMock()
-                mock_app.bot = mock_bot
-                bot.app = mock_app
-                await bot.cmd_resume(mock_update, mock_context)
-                mock_bot.send_message.assert_called_once()
-                assert mock_setting.value == "false"
-
-
+                with patch("src.utils.db.get_session", return_value=mock_session):
+                    mock_bot = MagicMock()
+                    mock_app = MagicMock()
+                    mock_app.bot = mock_bot
+                    bot.app = mock_app
+                    await bot.cmd_resume(mock_update, mock_context)
+                    mock_bot.send_message.assert_called_once()
+                    assert mock_setting.value == "false"
+        asyncio.run(_inner())
 class TestAuth:
     """Tests for API authentication."""
 

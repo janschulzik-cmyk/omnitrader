@@ -14,15 +14,16 @@ class TestHydraDAOIntegration:
         from src.dao.dao_contracts import HydraDAOIntegration
         return HydraDAOIntegration()
 
-    @pytest.mark.asyncio
-    async def test_distribute_bounty(self, integration):
+    def test_distribute_bounty(self, integration):
         """Bounty distribution follows 70/20/10 split."""
-        result = await integration.distribute_bounty_to_dao(1000.0)
-        assert result["status"] == "DISTRIBUTED"
-        assert result["reporter_share"] == 700.0
-        assert result["dao_share"] == 200.0
-        assert result["burn_amount"] == 100.0
-
+        import asyncio
+        async def _inner(integration):
+            result = await integration.distribute_bounty_to_dao(1000.0)
+            assert result["status"] == "DISTRIBUTED"
+            assert result["reporter_share"] == 700.0
+            assert result["dao_share"] == 200.0
+            assert result["burn_amount"] == 100.0
+        asyncio.run(_inner(integration))
     def test_get_treasury_status(self, integration):
         """Treasury status is retrievable."""
         result = integration.dao.get_treasury_status()
