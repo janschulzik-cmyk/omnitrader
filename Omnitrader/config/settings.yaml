@@ -269,6 +269,15 @@ legal:
     password_env: "PACER_PASSWORD"
 
 # ============================================================
+# Backtest / Striker Parameters (Phase 1 — Tuned)
+# ============================================================
+backtest:
+  fear_spike_threshold: 30       # Min fear score increase for SHORT
+  volume_multiplier: 2.0         # Min volume vs prev candle to confirm
+  min_candle_size_pct: 6.0       # Min % move in candle
+  require_wick_rejection: false  # Require wick pattern for signal
+
+# ============================================================
 # DAO / Treasury
 # ============================================================
 dao:

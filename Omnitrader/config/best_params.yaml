@@ -1,0 +1,5 @@
+backtest:
+  fear_threshold: 50
+  min_candle_size_pct: 7.0
+  require_wick_rejection: true
+  volume_multiplier: 2.0

@@ -31,7 +31,7 @@ class Hydra:
         - foundation: Long-term portfolio (20% of total capital)
     """
 
-    def __init__(self, config_path: str = None, *, striker: float = None, foundation: float = None, moat: float = None, config: dict = None):
+    def __init__(self, config_path: str = None, *, striker: float = None, foundation: float = None, moat: float = None, config: dict = None, circuit_breaker: object = None):
         """
         Initialize the Hydra capital manager.
 
@@ -42,6 +42,7 @@ class Hydra:
             foundation: Pre-computed foundation capital (for load()).
             moat: Pre-computed moat capital (for load()).
             config: Pre-loaded config dict (for load()).
+            circuit_breaker: Optional CircuitBreaker instance (for load()).
         """
         if config is not None:
             # Called from load() with pre-computed values
@@ -78,6 +79,15 @@ class Hydra:
             self.striker = self.total_capital * self.config["capital"]["striker_ratio"]
             self.foundation = self.total_capital * self.config["capital"]["foundation_ratio"]
             self.moat = self.total_capital * self.config["capital"]["moat_ratio"]
+
+        # Circuit breaker initialization
+        from ..risk.circuit_breaker import CircuitBreaker, init_circuit_breaker
+        self.circuit_breaker = circuit_breaker or CircuitBreaker(
+            threshold=self.config.get("risk_management", {}).get("max_drawdown", 0.20),
+            db_url=db_url if not circuit_breaker else None,
+        )
+        if circuit_breaker is None:
+            init_circuit_breaker(db_url)
 
         logger.info(
             "Hydra initialized: total=%.2f (moat=%.2f, foundation=%.2f, striker=%.2f)",
@@ -303,6 +313,55 @@ class Hydra:
 
         return self.update_balance(pool, new_balance)
 
+    def check_circuit_breaker(self, telegram_alert_fn=None) -> dict:
+        """Check if the circuit breaker should trigger based on drawdown.
+
+        Tracks peak cumulative PnL across all pools and triggers
+        a circuit breaker lock when drawdown exceeds the configured
+        threshold (default 20%).
+
+        Args:
+            telegram_alert_fn: Optional callable to send Telegram alert.
+
+        Returns:
+            Dict with:
+                breaker_triggered: True if breaker is ON.
+                drawdown_pct: Current drawdown from peak.
+                peak_pnl: Peak PnL tracked.
+                message: Human-readable status.
+        """
+        # Calculate total cumulative PnL across all pools
+        total_pnl = 0.0
+        for pool_name in ("moat", "striker", "foundation"):
+            record = None
+            session = get_session()
+            try:
+                record = session.query(PoolBalance).filter_by(pool_name=pool_name).first()
+                if record:
+                    total_pnl += (record.balance - record.total_deposited)
+            except Exception:
+                pass
+            finally:
+                if session:
+                    session.close()
+
+        result = self.circuit_breaker.check(total_pnl, self.total_capital, telegram_alert_fn)
+
+        # Update circuit breaker stats from trade data if available
+        if result.get("breaker_triggered"):
+            logger.error("CIRCUIT BREAKER TRIGGERED: drawdown=%.1f%%, peak_pnl=%.2f, current_pnl=%.2f",
+                        result.get("drawdown_pct", 0), result.get("peak_pnl", 0), total_pnl)
+
+        return result
+
+    def reset_circuit_breaker(self) -> dict:
+        """Manually reset the circuit breaker to OFF state."""
+        return self.circuit_breaker.reset()
+
+    def get_circuit_breaker_status(self) -> dict:
+        """Get current circuit breaker status."""
+        return self.circuit_breaker.get_status()
+
     def can_trade(self, striker_capital: float = None) -> bool:
         """
         Check if the Striker pool has sufficient capital for trading.
@@ -311,13 +370,24 @@ class Hydra:
             striker_capital: Current striker balance. If None, reads from DB.
 
         Returns:
-            True if Striker pool has at least 1% of total capital.
+            True if Striker pool has at least 1% of total capital AND
+            circuit breaker is not triggered.
         """
         if striker_capital is None:
             striker_capital = self.get_balance("striker")
 
         min_capital = self.total_capital * 0.01  # Minimum 1% of total
-        return striker_capital >= min_capital
+        if striker_capital < min_capital:
+            return False
+
+        # Check circuit breaker
+        cb_status = self.get_circuit_breaker_status()
+        if cb_status.get("breaker_triggered"):
+            logger.warning("Trading blocked: circuit breaker is ON (drawdown: %.1f%%)",
+                          self.circuit_breaker.threshold * 100)
+            return False
+
+        return True
 
     def reconcile(self) -> Dict[str, float]:
         """

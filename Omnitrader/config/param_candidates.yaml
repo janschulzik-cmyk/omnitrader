@@ -1,0 +1,37 @@
+candidates:
+- max_drawdown_pct: 2.96
+  num_trades: 24
+  params:
+    fear_threshold: 50
+    min_candle_size_pct: 7.0
+    require_wick_rejection: true
+    volume_multiplier: 2.0
+  profit_factor: 1.0
+  rank: 1
+  sharpe_ratio: -0.0
+  total_return_pct: -0.06
+  win_rate_pct: 33.3
+- max_drawdown_pct: 2.96
+  num_trades: 24
+  params:
+    fear_threshold: 50
+    min_candle_size_pct: 7.0
+    require_wick_rejection: true
+    volume_multiplier: 2.5
+  profit_factor: 1.0
+  rank: 2
+  sharpe_ratio: -0.0
+  total_return_pct: -0.06
+  win_rate_pct: 33.3
+- max_drawdown_pct: 2.96
+  num_trades: 24
+  params:
+    fear_threshold: 50
+    min_candle_size_pct: 7.0
+    require_wick_rejection: true
+    volume_multiplier: 3.0
+  profit_factor: 1.0
+  rank: 3
+  sharpe_ratio: -0.0
+  total_return_pct: -0.06
+  win_rate_pct: 33.3

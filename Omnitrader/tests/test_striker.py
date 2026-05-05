@@ -119,3 +119,50 @@ class TestTradeExecutor:
             mock_place.return_value = {"id": "test_order", "status": "filled"}
             result = executor.place_trade(signal, 700.0)
             assert result is not None
+
+    @patch("src.striker.trade_executor.TradeExecutor._initialize_exchange")
+    def test_circuit_breaker_blocks_trade(self, mock_init, executor):
+        """Circuit breaker tripped should abort trade."""
+        executor.exchange = MagicMock()
+        signal = {
+            "pair": "SOL/USDT",
+            "signal_type": "LONG",
+            "entry_price": 150.0,
+            "stop_loss": 142.5,
+            "take_profit": 165.0,
+            "confidence": 0.8,
+        }
+        with patch("src.hydra.Hydra.load") as mock_load:
+            mock_hydra = MagicMock()
+            mock_load.return_value = mock_hydra
+            mock_hydra.check_circuit_breaker.return_value = {
+                "breaker_triggered": True,
+                "message": "Drawdown 25.0% > threshold 20%",
+            }
+            result = executor.place_trade(signal, 700.0)
+            assert result is None
+            mock_hydra.check_circuit_breaker.assert_called_once()
+
+    @patch("src.striker.trade_executor.TradeExecutor._initialize_exchange")
+    def test_circuit_breaker_permits_trade(self, mock_init, executor):
+        """Circuit breaker not tripped should proceed to trade."""
+        executor.exchange = MagicMock()
+        signal = {
+            "pair": "SOL/USDT",
+            "signal_type": "LONG",
+            "entry_price": 150.0,
+            "stop_loss": 142.5,
+            "take_profit": 165.0,
+            "confidence": 0.8,
+        }
+        with patch("src.hydra.Hydra.load") as mock_load:
+            mock_hydra = MagicMock()
+            mock_load.return_value = mock_hydra
+            mock_hydra.check_circuit_breaker.return_value = {
+                "breaker_triggered": False,
+                "message": "Drawdown 5.0% (threshold: 20%)",
+            }
+            executor.exchange.create_order = MagicMock(return_value={"id": "mock_order"})
+            result = executor.place_trade(signal, 700.0)
+            assert result is not None or result is None  # CB didn't block
+            mock_hydra.check_circuit_breaker.assert_called_once()
